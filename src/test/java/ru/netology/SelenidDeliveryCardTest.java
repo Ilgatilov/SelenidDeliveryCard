@@ -17,6 +17,10 @@ import static com.codeborne.selenide.Selenide.open;
 
 public class SelenidDeliveryCardTest {
 
+    String generateDate(int plusDays) {
+        return LocalDate.now().plusDays(plusDays).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
+
     @BeforeEach
     void setUp() {
         open("http://localhost:9999");
@@ -25,19 +29,15 @@ public class SelenidDeliveryCardTest {
     @Test
     public void shouldCardDeliveryWithCssSelectors() {
         $("[data-test-id=city] .input__control").setValue("Нижний Новгород");
-        LocalDate today = LocalDate.now();
-        LocalDate dayOfMeeting = today.plusDays(4);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        String formattedDate = dayOfMeeting.format(formatter);
         $("[data-test-id=date] .input__control").sendKeys(Keys.CONTROL + "A");
         $("[data-test-id=date] .input__control").sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] .input__control").setValue(formattedDate);
+        $("[data-test-id=date] .input__control").setValue(generateDate(4));
         $("[data-test-id=name] .input__control").setValue("Максим Горький");
         $("[data-test-id=phone] .input__control").setValue("+79012345678");
         $("div form fieldset label").click();
         $(Selectors.byText("Забронировать")).click();
         $(Selectors.withText("Успешно")).shouldBe(visible, Duration.ofSeconds(13));
-        $("div.notification__content").shouldHave(exactText("Встреча успешно забронирована на " + formattedDate));
+        $("div.notification__content").shouldHave(exactText("Встреча успешно забронирована на " + generateDate(4)));
 
     }
 }
